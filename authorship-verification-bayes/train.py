@@ -1,4 +1,6 @@
 from pathlib import Path
+import json
+from joblib import load
 
 from joblib import dump
 from sklearn.feature_extraction.text import CountVectorizer
@@ -9,21 +11,31 @@ from tira.rest_api_client import Client
 if __name__ == "__main__":
 
     # Load the data
+    model = load(Path(__file__).parent / "model.joblib")
     tira = Client()
-    text = tira.pd.inputs(
+    test_text = tira.pd.inputs(
         "nlpbuw-fsu-sose-24", "authorship-verification-train-20240408-training"
     )
-    text = text.set_index("id")
-    labels = tira.pd.truths(
-        "nlpbuw-fsu-sose-24", "authorship-verification-train-20240408-training"
-    )
-    df = text.join(labels.set_index("id"))
+    test_text = test_text.set_index("id")
 
-    # Train the model
-    model = Pipeline(
-        [("vectorizer", CountVectorizer()), ("classifier", MultinomialNB())]
-    )
-    model.fit(df["text"], df["generated"])
+    # Make predictions
+    predictions = model.predict(test_text["text"])
 
-    # Save the model
-    dump(model, Path(__file__).parent / "model.joblib")
+     # Save predictions to JSONL file
+    with open("predictions.jsonl", "w") as f:
+        for idx, prediction in zip(test_text.index, predictions):
+            json.dump({"id": idx, "generated": int(prediction)}, f)
+            f.write("\n")
+    # labels = tira.pd.truths(
+    #     "nlpbuw-fsu-sose-24", "authorship-verification-train-20240408-training"
+    # )
+    # df = text.join(labels.set_index("id"))
+
+    # # Train the model
+    # model = Pipeline(
+    #     [("vectorizer", CountVectorizer()), ("classifier", MultinomialNB())]
+    # )
+    # model.fit(df["text"], df["generated"])
+
+    # # Save the model
+    # dump(model, Path(__file__).parent / "model.joblib")

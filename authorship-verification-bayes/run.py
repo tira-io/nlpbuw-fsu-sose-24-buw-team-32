@@ -1,27 +1,25 @@
-import json
 from pathlib import Path
+
 from joblib import load
+from tira.rest_api_client import Client
+from tira.third_party_integrations import get_output_directory
 
 if __name__ == "__main__":
-    # Load the trained model
+
+    # Load the data
+    tira = Client()
+    df = tira.pd.inputs(
+        "nlpbuw-fsu-sose-24", f"authorship-verification-validation-20240408-training"
+    )
+
+    # Load the model and make predictions
     model = load(Path(__file__).parent / "model.joblib")
-    
-    # Load the test data
-    test_file = Path(__file__).parent / "text.jsonl"
-    texts = []
-    with open(test_file, 'r') as f:
-        for line in f:
-            texts.append(json.loads(line))
-    
-    # Make predictions
-    predictions = []
-    for entry in texts:
-        text = entry['text']
-        pred_lang = model.predict([text])[0]
-        predictions.append({'id': entry['id'], 'lang': pred_lang})
-    
-    # Save predictions to predictions.jsonl file
-    with open(Path(__file__).parent / "predictions.jsonl", 'w') as f:
-        for pred in predictions:
-            json.dump(pred, f)
-            f.write("\n")
+    predictions = model.predict(df["text"])
+    df["generated"] = predictions
+    df = df[["id", "generated"]]
+
+    # Save the predictions
+    output_directory = get_output_directory(str(Path(__file__).parent))
+    df.to_json(
+        Path(output_directory) / "predictions.jsonl", orient="records", lines=True
+    )

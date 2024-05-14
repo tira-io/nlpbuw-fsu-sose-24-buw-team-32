@@ -28,7 +28,7 @@ from joblib import load
 from tira.rest_api_client import Client
 from tira.third_party_integrations import get_output_directory
 
-if _name_ == "_main_":
+if __name__ == "_main_":
     # Load the data
     tira = Client()
     df = tira.pd.inputs(

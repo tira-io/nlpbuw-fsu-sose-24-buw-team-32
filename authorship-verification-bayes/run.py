@@ -1,22 +1,15 @@
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
-from sklearn.naive_bayes import MultinomialNB  # Import Multinomial Naive Bayes classifier
 from tira.rest_api_client import Client
 from tira.third_party_integrations import get_output_directory
 from pathlib import Path
 from joblib import load
 
 if __name__ == "__main__":
-    # Load the data
+    # Load data
     dataf = Client().pd.inputs("nlpbuw-fsu-sose-24", "language-identification-validation-20240408-validation")
 
-    # Define the classifier pipeline with CountVectorizer and Multinomial Naive Bayes
-    mod = Pipeline([
-        ("vectorizer", CountVectorizer()),
-        ("classifier", MultinomialNB())  # Using Multinomial Naive Bayes classifier
-    ])
-
-    # Load the trained model
+    # Load trained model
     mod = load(Path(__file__).parent / "model.joblib")
 
     # Predict language using the trained classifier

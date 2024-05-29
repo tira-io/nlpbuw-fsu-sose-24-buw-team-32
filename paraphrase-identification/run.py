@@ -6,7 +6,7 @@ from tira.third_party_integrations import get_output_directory
 if __name__ == "__main__":
     import os
     # Load the best threshold from train.py
-    with open('/workspaces/nlpbuw-fsu-sose-24-buw-team-32/paraphrase-identification/best_threshold.txt', 'r') as f:
+    with open('/nlpbuw-fsu-sose-24-buw-team-32/paraphrase-identification/best_threshold.txt', 'r') as f:
         best_threshold = float(f.read().strip())
 
     # Load the data

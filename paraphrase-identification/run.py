@@ -2,11 +2,16 @@ from pathlib import Path
 from levenshtein import levenshtein_distance
 from tira.rest_api_client import Client
 from tira.third_party_integrations import get_output_directory
+import sys
 
 if __name__ == "__main__":
     # Load the best threshold from train.py
-    with open('best_threshold.txt', 'r') as f:
-        best_threshold = float(f.read().strip())
+    try:
+        with open('/workspaces/nlpbuw-fsu-sose-24-buw-team-32/paraphrase-identification/best_threshold.txt', 'r') as f:
+            best_threshold = float(f.read().strip())
+    except FileNotFoundError:
+        print("Error: best_threshold.txt not found.")
+        sys.exit(1)
 
     # Load the data
     tira = Client()

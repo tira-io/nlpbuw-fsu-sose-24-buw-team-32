@@ -32,6 +32,6 @@ if __name__ == "__main__":
     best_threshold = max(mccs, key=mccs.get)
     print(f"Best threshold: {best_threshold}")
 
-    # Save the best threshold for use in run.py
+    # Save the beEst threshold for use in run.py
     with open('best_threshold.txt', 'w') as f:
         f.write(str(best_threshold))

@@ -3,6 +3,8 @@ from levenshtein import levenshtein_distance
 from tira.rest_api_client import Client
 from tira.third_party_integrations import get_output_directory
 import os
+import json
+import pandas as pd
 
 if __name__ == "__main__":
     try:
@@ -21,18 +23,23 @@ if __name__ == "__main__":
         print("Validation data loaded.")
         print("Columns in the validation data:", df.columns.tolist())
 
-        # Ensure required columns are present
+        # Ensure the 'text' column is present if sentence1 and sentence2 are not
         if 'sentence1' not in df.columns or 'sentence2' not in df.columns:
-            raise KeyError("Columns 'sentence1' and 'sentence2' must be present in the data.")
+            if 'text' not in df.columns:
+                raise KeyError("Column 'text' must be present in the data if 'sentence1' and 'sentence2' are not.")
+            # Extract 'sentence1' and 'sentence2' from 'text' column
+            print("Extracting 'sentence1' and 'sentence2' from 'text' column...")
+            df[['sentence1', 'sentence2']] = df['text'].apply(lambda x: pd.Series(json.loads(x)))
+            print("Extraction complete. Columns now:", df.columns.tolist())
 
         # Compute the Levenshtein distance between sentence pairs
         print("Computing Levenshtein distances for validation data...")
         df["distance"] = df.apply(lambda row: levenshtein_distance(row["sentence1"], row["sentence2"]), axis=1)
         df["label"] = (df["distance"] <= best_threshold).astype(int)
-        df = df.drop(columns=["distance", "sentence1", "sentence2"]).reset_index()
+        df = df.drop(columns=["distance", "sentence1", "sentence2", "text"]).reset_index()
         print("Levenshtein distances computed.")
 
-        # Save the predictionss
+        # Save the predictions
         output_directory = get_output_directory(str(Path(__file__).parent))
         print(f"Saving predictions to {output_directory}/predictions.jsonl...")
         df.to_json(

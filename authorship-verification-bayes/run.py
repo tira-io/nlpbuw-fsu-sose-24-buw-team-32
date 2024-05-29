@@ -1,3 +1,9 @@
+
+from tira.rest_api_client import Client
+from tira.third_party_integrations import get_output_directory
+from pathlib import Path
+from joblib import load
+
 import json
 import joblib 
 
@@ -27,3 +33,4 @@ if __name__ == "__main__":
         texts = [json.loads(line) for line in file]
     predictions = make_predictions(model, vectorizer, texts)
     write_predictions(predictions, 'predictions.jsonl')
+

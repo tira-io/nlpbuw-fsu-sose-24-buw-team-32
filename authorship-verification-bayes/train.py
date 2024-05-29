@@ -1,3 +1,11 @@
+from sklearn.feature_extraction.text import CountVectorizer
+
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
+from tira.rest_api_client import Client
+
+from joblib import dump
+from pathlib import Path
 import json
 import numpy as np
 from sklearn.model_selection import train_test_split

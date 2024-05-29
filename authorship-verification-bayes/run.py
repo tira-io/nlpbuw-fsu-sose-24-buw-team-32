@@ -2,26 +2,41 @@ from tira.rest_api_client import Client
 from tira.third_party_integrations import get_output_directory
 from pathlib import Path
 from joblib import load
+import pandas as pd
 
 if __name__ == "__main__":
-    # Load the data
-    ti = Client()
-    data = ti.pd.inputs("nlpbuw-fsu-sose-24", "paraphrase-identification-validation-20240515-validation")
+    try:
+        # Load the data
+        ti = Client()
+        data = ti.pd.inputs("nlpbuw-fsu-sose-24", "paraphrase-identification-validation-20240515-validation")
 
-    # Load trained model
-    mod = load(Path(__file__).parent / "model.joblib")
+        # Check if data is loaded
+        if data.empty:
+            print("No data loaded. Check API or dataset availability.")
+        else:
+            # Load trained model
+            model_path = Path(__file__).parent / "model.joblib"
+            if not model_path.exists():
+                print(f"Model file not found at {model_path}.")
+            else:
+                mod = load(model_path)
 
-    # Combine sentences into one feature as in training
-    data["combined"] = data["sentence1"] + " " + data["sentence2"]
+                # Combine sentences into one feature as in training
+                data["combined"] = data["sentence1"] + " " + data["sentence2"]
 
-    # Predict whether the pairs are paraphrases
-    predictions = mod.predict(data["combined"])
+                # Predict whether the pairs are paraphrases
+                predictions = mod.predict(data["combined"])
 
-    # Update dataframe with predictions
-    data["label"] = predictions
-    data = data[["id", "label"]]
+                # Update dataframe with predictions
+                data["label"] = predictions
+                data = data[["id", "label"]]
 
-    # Save predictions
-    outputDir = get_output_directory(str(Path(__file__).parent))
-    output_file = Path(outputDir) / "predictions.jsonl"
-    data.to_json(output_file, orient="records", lines=True)
+                # Save predictions
+                outputDir = get_output_directory(str(Path(__file__).parent))
+                output_file = Path(outputDir) / "predictions.jsonl"
+                data.to_json(output_file, orient="records", lines=True)
+
+                print(f"Output successfully saved to {output_file}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")

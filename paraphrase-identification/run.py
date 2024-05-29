@@ -29,14 +29,29 @@ if __name__ == "__main__":
                 raise KeyError("Column 'text' must be present in the data if 'sentence1' and 'sentence2' are not.")
             # Extract 'sentence1' and 'sentence2' from 'text' column
             print("Extracting 'sentence1' and 'sentence2' from 'text' column...")
-            df[['sentence1', 'sentence2']] = df['text'].apply(lambda x: pd.Series(json.loads(x)))
+            
+            def extract_sentences(text):
+                try:
+                    data = json.loads(text)
+                    return pd.Series([data['sentence1'], data['sentence2']])
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON for text: {text}")
+                    raise e
+            
+            df[['sentence1', 'sentence2']] = df['text'].apply(extract_sentences)
             print("Extraction complete. Columns now:", df.columns.tolist())
 
         # Compute the Levenshtein distance between sentence pairs
         print("Computing Levenshtein distances for validation data...")
         df["distance"] = df.apply(lambda row: levenshtein_distance(row["sentence1"], row["sentence2"]), axis=1)
         df["label"] = (df["distance"] <= best_threshold).astype(int)
-        df = df.drop(columns=["distance", "sentence1", "sentence2", "text"]).reset_index()
+        
+        # Drop columns that exist in the DataFrame
+        columns_to_drop = ["distance", "sentence1", "sentence2"]
+        if 'text' in df.columns:
+            columns_to_drop.append('text')
+        df = df.drop(columns=columns_to_drop).reset_index()
+        
         print("Levenshtein distances computed.")
 
         # Save the predictions
@@ -50,5 +65,7 @@ if __name__ == "__main__":
         print("Error: best_threshold.txt file not found. Ensure that train.py generates the file before running run.py.")
     except KeyError as e:
         print(f"Error: {e}")
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
     except Exception as e:
         print(f"Error occurred: {e}")

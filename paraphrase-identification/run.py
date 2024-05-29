@@ -2,6 +2,7 @@ from pathlib import Path
 from tira.rest_api_client import Client
 from tira.third_party_integrations import get_output_directory
 import numpy as np
+import joblib
 
 def wer(reference, hypothesis):
     r = reference.split()
@@ -32,7 +33,9 @@ if __name__ == "__main__":
 
     # Compute the WER
     df["wer"] = df.apply(lambda row: wer(row['sentence1'], row['sentence2']), axis=1)
-    df["label"] = (df["wer"] <= 10).astype(int)
+    
+    model = joblib.load("model.joblib")
+    df["label"] = model.predict(df[["wer"]])
     df = df.drop(columns=["wer", "sentence1", "sentence2"]).reset_index()
 
     # Save the predictions

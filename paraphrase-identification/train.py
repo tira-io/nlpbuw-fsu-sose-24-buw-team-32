@@ -1,5 +1,9 @@
 from tira.rest_api_client import Client
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import matthews_corrcoef
+import joblib
 
 def wer(reference, hypothesis):
     r = reference.split()
@@ -31,19 +35,17 @@ if __name__ == "__main__":
     
     text["wer"] = text.apply(lambda row: wer(row['sentence1'], row['sentence2']), axis=1)
     df = text.join(labels)
-
-    mccs = {}
-    for threshold in sorted(text["wer"].unique()):
-        tp = df[(df["wer"] <= threshold) & (df["label"] == 1)].shape[0]
-        fp = df[(df["wer"] <= threshold) & (df["label"] == 0)].shape[0]
-        tn = df[(df["wer"] > threshold) & (df["label"] == 0)].shape[0]
-        fn = df[(df["wer"] > threshold) & (df["label"] == 1)].shape[0]
-        try:
-            mcc = (tp * tn - fp * fn) / (
-                (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)
-            ) ** 0.5
-        except ZeroDivisionError:
-            mcc = 0
-        mccs[threshold] = mcc
-    best_threshold = max(mccs, key=mccs.get)
-    print(f"Best threshold: {best_threshold}")
+    
+    X = df[["wer"]]
+    y = df["label"]
+    
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    model = LogisticRegression()
+    model.fit(X_train, y_train)
+    
+    y_pred = model.predict(X_val)
+    mcc = matthews_corrcoef(y_val, y_pred)
+    print(f"Validation MCC: {mcc}")
+    
+    joblib.dump(model, "model.joblib")

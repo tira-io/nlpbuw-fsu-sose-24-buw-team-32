@@ -1,23 +1,27 @@
+import json
+from sklearn.externals import joblib
 
-from tira.rest_api_client import Client
-from tira.third_party_integrations import get_output_directory
-from pathlib import Path
-from joblib import load
+def load_model():
+    model = joblib.load('model.joblib')
+    vectorizer = joblib.load('vectorizer.joblib')
+    return model, vectorizer
+
+def make_predictions(model, vectorizer, texts):
+    sentences = ["{} {}".format(text['sentence1'], text['sentence2']) for text in texts]
+    X = vectorizer.transform(sentences)
+    predictions = model.predict(X)
+    return predictions
+
+def write_predictions(predictions, output_file):
+    with open(output_file, 'w') as file:
+        for i, pred in enumerate(predictions):
+            result = {"id": i, "label": int(pred)}
+            json.dump(result, file)
+            file.write('\n')
 
 if __name__ == "__main__":
-    # Load the data
-    dataf = Client().pd.inputs("nlpbuw-fsu-sose-24", "language-identification-validation-20240408-validation")
-
-    mod = load(Path(__file__).parent / "model.joblib")
-
-    # Predict language using the trained SVM classifier
-    pred = mod.predict(dataf["text"])
-
-    # Update dataframe with predictions
-    dataf["lang"] = pred
-    dataf = dataf[["id", "lang"]]
-
-    # Save predictions
-    outputDir = get_output_directory(str(Path(__file__).parent))
-    output_file = Path(outputDir) / "predictions.jsonl"
-    dataf.to_json(output_file, orient="records", lines=True)
+    model, vectorizer = load_model()
+    with open('text.jsonl', 'r') as file:
+        texts = [json.loads(line) for line in file]
+    predictions = make_predictions(model, vectorizer, texts)
+    write_predictions(predictions, 'predictions.jsonl')

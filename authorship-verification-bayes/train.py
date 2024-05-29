@@ -4,6 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.externals import joblib
+import joblib 
+
 
 def load_data(text_file, labels_file):
     with open(text_file, 'r') as file:

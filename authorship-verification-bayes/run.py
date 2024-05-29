@@ -1,4 +1,6 @@
 import json
+import joblib 
+
 from sklearn.externals import joblib
 
 def load_model():

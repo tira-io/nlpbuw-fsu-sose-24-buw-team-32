@@ -19,6 +19,11 @@ if __name__ == "__main__":
             "nlpbuw-fsu-sose-24", "paraphrase-identification-validation-20240515-training"
         ).set_index("id")
         print("Validation data loaded.")
+        print("Columns in the validation data:", df.columns.tolist())
+
+        # Ensure required columns are present
+        if 'sentence1' not in df.columns or 'sentence2' not in df.columns:
+            raise KeyError("Columns 'sentence1' and 'sentence2' must be present in the data.")
 
         # Compute the Levenshtein distance between sentence pairs
         print("Computing Levenshtein distances for validation data...")
@@ -36,5 +41,7 @@ if __name__ == "__main__":
         print("Predictions saved successfully.")
     except FileNotFoundError:
         print("Error: best_threshold.txt file not found. Ensure that train.py generates the file before running run.py.")
+    except KeyError as e:
+        print(f"Error: {e}")
     except Exception as e:
         print(f"Error occurred: {e}")

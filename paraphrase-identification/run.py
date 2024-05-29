@@ -12,7 +12,7 @@ if __name__ == "__main__":
             best_threshold = float(f.read().strip())
         print(f"Best threshold loaded: {best_threshold}")
 
-        # Load the data
+        # Load the dataaa
         print("Loading validation data...")
         tira = Client()
         df = tira.pd.inputs(

@@ -15,29 +15,28 @@ from sklearn.linear_model import LogisticRegression
 import joblib 
 
 
+import json
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import make_pipeline
+import joblib
+
 def load_data(text_file, labels_file):
-    with open(text_file, 'r') as file:
-        texts = [json.loads(line) for line in file]
-    with open(labels_file, 'r') as file:
-        labels = [json.loads(line) for line in file]
+    with open(text_file, 'r') as f:
+        texts = [json.loads(line) for line in f]
+    with open(labels_file, 'r') as f:
+        labels = [json.loads(line) for line in f]
     return texts, labels
 
-def preprocess_data(texts, labels):
-    sentences = ["{} {}".format(text['sentence1'], text['sentence2']) for text in texts]
+def preprocess_and_train(texts, labels):
+    sentences = [f"{text['sentence1']} {text['sentence2']}" for text in texts]
     y = [label['label'] for label in labels]
-    return sentences, y
-
-def train_model(X_train, y_train):
-    vectorizer = TfidfVectorizer(ngram_range=(1,2))
-    X_train_tfidf = vectorizer.fit_transform(X_train)
-    model = LogisticRegression()
-    model.fit(X_train_tfidf, y_train)
-    return vectorizer, model
+    # Create a pipeline that vectorizes the text and then trains a classifier
+    model = make_pipeline(TfidfVectorizer(), MultinomialNB())
+    model.fit(sentences, y)
+    return model
 
 if __name__ == "__main__":
     texts, labels = load_data('text.jsonl', 'labels.jsonl')
-    X, y = preprocess_data(texts, labels)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    vectorizer, model = train_model(X_train, y_train)
-    joblib.dump(model, 'model.joblib')
-    joblib.dump(vectorizer, 'vectorizer.joblib')
+    model = preprocess_and_train(texts, labels)
+    joblib.dump(model, 'naive_bayes_model.joblib')

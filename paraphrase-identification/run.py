@@ -32,7 +32,7 @@ if __name__ == "__main__":
         df = df.drop(columns=["distance", "sentence1", "sentence2"]).reset_index()
         print("Levenshtein distances computed.")
 
-        # Save the predictions
+        # Save the predictionss
         output_directory = get_output_directory(str(Path(__file__).parent))
         print(f"Saving predictions to {output_directory}/predictions.jsonl...")
         df.to_json(

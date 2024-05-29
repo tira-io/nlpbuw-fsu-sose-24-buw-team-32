@@ -47,6 +47,9 @@ if __name__ == "__main__":
     
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
     
+    print("Training data shape:", X_train.shape)
+    print("Validation data shape:", X_val.shape)
+    
     model = LogisticRegression()
     model.fit(X_train, y_train)
     
@@ -55,3 +58,4 @@ if __name__ == "__main__":
     print(f"Validation MCC: {mcc}")
     
     joblib.dump(model, "model.joblib")
+    print("Model saved as model.joblib")

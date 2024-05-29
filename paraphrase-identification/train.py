@@ -1,8 +1,9 @@
 from tira.rest_api_client import Client
+
 from levenshtein import levenshtein_distance
-import os  # Import the os module
 
 if __name__ == "__main__":
+
     # Load the data
     tira = Client()
     text = tira.pd.inputs(
@@ -11,9 +12,7 @@ if __name__ == "__main__":
     labels = tira.pd.truths(
         "nlpbuw-fsu-sose-24", "paraphrase-identification-train-20240515-training"
     ).set_index("id")
-
-    # Calculate Levenshtein distance between sentence pairs
-    text["distance"] = text.apply(lambda row: levenshtein_distance(row["sentence1"], row["sentence2"]), axis=1)
+    text["distance"] = levenshtein_distance(text)
     df = text.join(labels)
 
     mccs = {}
@@ -29,13 +28,5 @@ if __name__ == "__main__":
         except ZeroDivisionError:
             mcc = 0
         mccs[threshold] = mcc
-
     best_threshold = max(mccs, key=mccs.get)
     print(f"Best threshold: {best_threshold}")
-
-    # Calculate the absolute path for best_threshold.txt
-    output_file_path = '/workspaces/nlpbuw-fsu-sose-24-buw-team-32/paraphrase-identification/best_threshold.txt'
-
-    # Save the best threshold for use in run.py
-    with open(output_file_path, 'w') as f:
-        f.write(str(best_threshold))

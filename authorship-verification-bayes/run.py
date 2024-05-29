@@ -1,29 +1,27 @@
-import json
-import joblib
+from tira.rest_api_client import Client
+from tira.third_party_integrations import get_output_directory
 from pathlib import Path
-import logging
-
-import json
-import joblib
-
-def load_model(model_path):
-    return joblib.load(model_path)
-
-def make_predictions(model, texts):
-    sentences = [f"{text['sentence1']} {text['sentence2']}" for text in texts]
-    predictions = model.predict(sentences)
-    return predictions
-
-def write_predictions(predictions, output_file):
-    with open(output_file, 'w') as f:
-        for i, prediction in enumerate(predictions):
-            result = {"id": i, "label": int(prediction)}
-            json.dump(result, f)
-            f.write('\n')
+from joblib import load
 
 if __name__ == "__main__":
-    model = load_model('naive_bayes_model.joblib')
-    with open('text.jsonl', 'r') as file:
-        texts = [json.loads(line) for line in file]
-    predictions = make_predictions(model, texts)
-    write_predictions(predictions, 'predictions.jsonl')
+    # Load the data
+    ti = Client()
+    data = ti.pd.inputs("nlpbuw-fsu-sose-24", "paraphrase-identification-validation-20240515-validation")
+
+    # Load trained model
+    mod = load(Path(__file__).parent / "model.joblib")
+
+    # Combine sentences into one feature as in training
+    data["combined"] = data["sentence1"] + " " + data["sentence2"]
+
+    # Predict whether the pairs are paraphrases
+    predictions = mod.predict(data["combined"])
+
+    # Update dataframe with predictions
+    data["label"] = predictions
+    data = data[["id", "label"]]
+
+    # Save predictions
+    outputDir = get_output_directory(str(Path(__file__).parent))
+    output_file = Path(outputDir) / "predictions.jsonl"
+    data.to_json(output_file, orient="records", lines=True)

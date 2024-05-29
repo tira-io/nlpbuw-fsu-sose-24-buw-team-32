@@ -11,7 +11,7 @@ if __name__ == "__main__":
     data = ti.pd.inputs("nlpbuw-fsu-sose-24", "paraphrase-identification-train-20240515-training")
     labels = ti.pd.truths("nlpbuw-fsu-sose-24", "paraphrase-identification-train-20240515-training")
 
-    # Combining sentences
+    # Combining sentencesl
     data["combined"] = data["sentence1"] + " " + data["sentence2"]
 
     # Define logistic regression pipeline

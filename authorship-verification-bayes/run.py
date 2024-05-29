@@ -10,6 +10,9 @@ if __name__ == "__main__":
         ti = Client()
         data = ti.pd.inputs("nlpbuw-fsu-sose-24", "paraphrase-identification-validation-20240515-validation")
 
+        # Debug: Print data columns
+        print("Columns in the dataset:", data.columns)
+
         # Verify required columns are present
         if "sentence1" not in data.columns or "sentence2" not in data.columns:
             print("Data does not contain the expected 'sentence1' or 'sentence2' columns.")
@@ -29,7 +32,7 @@ if __name__ == "__main__":
             # Predict whether the pairs are paraphrases
             predictions = mod.predict(data["combined"])
 
-            # Update dataframe with predictionsss
+            # Update dataframe with predictions
             data["label"] = predictions
             data = data[["id", "label"]]
 

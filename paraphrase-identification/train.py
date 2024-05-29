@@ -10,9 +10,9 @@ if __name__ == "__main__":
     labels = tira.pd.truths(
         "nlpbuw-fsu-sose-24", "paraphrase-identification-train-20240515-training"
     ).set_index("id")
-    
-    # Compute the Levenshtein distance
-    text["distance"] = levenshtein_distance(text)
+
+    # Calculate Levenshtein distance between sentence pairs
+    text["distance"] = text.apply(lambda row: levenshtein_distance(row["sentence1"], row["sentence2"]), axis=1)
     df = text.join(labels)
 
     mccs = {}
@@ -28,5 +28,10 @@ if __name__ == "__main__":
         except ZeroDivisionError:
             mcc = 0
         mccs[threshold] = mcc
+
     best_threshold = max(mccs, key=mccs.get)
     print(f"Best threshold: {best_threshold}")
+
+    # Save the best threshold for use in run.py
+    with open('best_threshold.txt', 'w') as f:
+        f.write(str(best_threshold))

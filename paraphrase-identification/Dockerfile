@@ -6,4 +6,7 @@ COPY levenshtein.py /code/levenshtein.py
 
 WORKDIR /code
 
+# Run train.py to generate best_threshold.txt during the build process
+RUN python3 train.py
+
 ENTRYPOINT ["python3", "run.py"]

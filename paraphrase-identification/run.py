@@ -45,6 +45,6 @@ if __name__ == "__main__":
     df["label"] = model.predict(df[["wer"]])
     df = df.drop(columns=["wer", "sentence1", "sentence2"]).reset_index()
 
-    # Save the predictions
+    # Save the predictionssss
     output_directory = get_output_directory(str(Path(__file__).parent))
     df.to_json(Path(output_directory) / "predictions.jsonl", orient="records", lines=True)

@@ -58,4 +58,4 @@ if __name__ == "__main__":
     print(f"Validation MCC: {mcc}")
     
     joblib.dump(model, "model.joblib")
-    print("Model saved as model.joblib")
+    print("mModel saved as model.joblib")

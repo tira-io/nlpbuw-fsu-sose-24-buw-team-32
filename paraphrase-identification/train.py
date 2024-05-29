@@ -1,5 +1,6 @@
 from tira.rest_api_client import Client
 from levenshtein import levenshtein_distance
+import os  # Import the os module
 
 if __name__ == "__main__":
     # Load the data
@@ -32,6 +33,9 @@ if __name__ == "__main__":
     best_threshold = max(mccs, key=mccs.get)
     print(f"Best threshold: {best_threshold}")
 
+    # Calculate the absolute path for best_threshold.txt
+    output_file_path = '/workspaces/nlpbuw-fsu-sose-24-buw-team-32/paraphrase-identification/best_threshold.txt'
+
     # Save the best threshold for use in run.py
-    with open('/path/to/best_threshold.txt', 'w') as f:
-     f.write(str(best_threshold))
+    with open(output_file_path, 'w') as f:
+        f.write(str(best_threshold))

@@ -33,5 +33,5 @@ if __name__ == "__main__":
     print(f"Best threshold: {best_threshold}")
 
     # Save the best threshold for use in run.py
-    with open('best_threshold.txt', 'w') as f:
-        f.write(str(best_threshold))
+    with open('/path/to/best_threshold.txt', 'w') as f:
+     f.write(str(best_threshold))

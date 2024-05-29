@@ -31,6 +31,13 @@ if __name__ == "__main__":
     tira = Client()
     df = tira.pd.inputs("nlpbuw-fsu-sose-24", "paraphrase-identification-validation-20240515-training").set_index("id")
 
+    print("Loaded validation data:")
+    print(df.head())
+
+    # Ensure the necessary columns are present
+    if 'sentence1' not in df.columns or 'sentence2' not in df.columns:
+        raise KeyError("Required columns 'sentence1' and 'sentence2' not found in the input data.")
+
     # Compute the WER
     df["wer"] = df.apply(lambda row: wer(row['sentence1'], row['sentence2']), axis=1)
     

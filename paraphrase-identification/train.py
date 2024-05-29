@@ -33,6 +33,12 @@ if __name__ == "__main__":
     text = tira.pd.inputs("nlpbuw-fsu-sose-24", "paraphrase-identification-train-20240515-training").set_index("id")
     labels = tira.pd.truths("nlpbuw-fsu-sose-24", "paraphrase-identification-train-20240515-training").set_index("id")
     
+    print("Loaded text data:")
+    print(text.head())
+
+    print("Loaded labels:")
+    print(labels.head())
+
     text["wer"] = text.apply(lambda row: wer(row['sentence1'], row['sentence2']), axis=1)
     df = text.join(labels)
     

@@ -1,11 +1,9 @@
 from pathlib import Path
-
 from levenshtein import levenshtein_distance
 from tira.rest_api_client import Client
 from tira.third_party_integrations import get_output_directory
 
 if __name__ == "__main__":
-
     # Load the data
     tira = Client()
     df = tira.pd.inputs(

@@ -1,9 +1,7 @@
 from tira.rest_api_client import Client
-
 from levenshtein import levenshtein_distance
 
 if __name__ == "__main__":
-
     # Load the data
     tira = Client()
     text = tira.pd.inputs(
@@ -12,6 +10,8 @@ if __name__ == "__main__":
     labels = tira.pd.truths(
         "nlpbuw-fsu-sose-24", "paraphrase-identification-train-20240515-training"
     ).set_index("id")
+    
+    # Compute the Levenshtein distance
     text["distance"] = levenshtein_distance(text)
     df = text.join(labels)
 

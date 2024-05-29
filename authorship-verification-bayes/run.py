@@ -29,7 +29,7 @@ if __name__ == "__main__":
             # Predict whether the pairs are paraphrases
             predictions = mod.predict(data["combined"])
 
-            # Update dataframe with predictions
+            # Update dataframe with predictionsss
             data["label"] = predictions
             data = data[["id", "label"]]
 

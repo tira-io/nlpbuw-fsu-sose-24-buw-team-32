@@ -1,5 +1,6 @@
 from tira.rest_api_client import Client
 from levenshtein import levenshtein_distance
+import os
 
 if __name__ == "__main__":
     # Load the data
@@ -33,5 +34,6 @@ if __name__ == "__main__":
     print(f"Best threshold: {best_threshold}")
 
     # Save the best threshold for use in run.py
-    with open('/workspaces/nlpbuw-fsu-sose-24-buw-team-32/paraphrase-identification/best_threshold.txt', 'w') as f:
+    with open('best_threshold.txt', 'w') as f:
         f.write(str(best_threshold))
+    print("Best threshold saved successfully.")

@@ -6,6 +6,19 @@ import os
 import json
 import pandas as pd
 
+def extract_sentences(text):
+    try:
+        data = json.loads(text)
+        return pd.Series([data['sentence1'], data['sentence2']])
+    except json.JSONDecodeError:
+        # Assume text is plain text with two sentences separated by some delimiter
+        # This is a placeholder: replace with the actual logic for your data format
+        sentences = text.split('\n')[:2]  # Example: split by newline and take the first two lines
+        if len(sentences) == 2:
+            return pd.Series(sentences)
+        else:
+            raise ValueError(f"Unable to extract two sentences from text: {text}")
+
 if __name__ == "__main__":
     try:
         # Load the best threshold from train.py
@@ -29,15 +42,6 @@ if __name__ == "__main__":
                 raise KeyError("Column 'text' must be present in the data if 'sentence1' and 'sentence2' are not.")
             # Extract 'sentence1' and 'sentence2' from 'text' column
             print("Extracting 'sentence1' and 'sentence2' from 'text' column...")
-            
-            def extract_sentences(text):
-                try:
-                    data = json.loads(text)
-                    return pd.Series([data['sentence1'], data['sentence2']])
-                except json.JSONDecodeError as e:
-                    print(f"Error decoding JSON for text: {text}")
-                    raise e
-            
             df[['sentence1', 'sentence2']] = df['text'].apply(extract_sentences)
             print("Extraction complete. Columns now:", df.columns.tolist())
 
@@ -65,7 +69,7 @@ if __name__ == "__main__":
         print("Error: best_threshold.txt file not found. Ensure that train.py generates the file before running run.py.")
     except KeyError as e:
         print(f"Error: {e}")
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
+    except ValueError as e:
+        print(f"Error processing text: {e}")
     except Exception as e:
         print(f"Error occurred: {e}")

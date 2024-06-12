@@ -19,11 +19,11 @@ if __name__ == "__main__":
     print("First few rows of the dataframe:")
     print(df.head())
 
-    # Check if 'story' column exists and handle accordingly
-    if 'story' in df.columns:
-        # Generate summary by grabbing the first two sentences of the story
-        df["summary"] = df["story"].str.split("\n").str[:2].str.join("\n")
-        df = df.drop(columns=["story"]).reset_index()
+    # Check if 'text' column exists and handle accordingly
+    if 'text' in df.columns:
+        # Generate summary by grabbing the first two sentences of the text
+        df["summary"] = df["text"].str.split("\n").str[:2].str.join("\n")
+        df = df.drop(columns=["text"]).reset_index()
 
         # Save the predictions to JSONL file
         output_directory = get_output_directory(str(Path(__file__).parent))
@@ -38,4 +38,4 @@ if __name__ == "__main__":
                 print(json.loads(f.readline()))
 
     else:
-        print("Error: 'story' column not found in the dataframe")
+        print("Error: 'text' column not found in the dataframe")

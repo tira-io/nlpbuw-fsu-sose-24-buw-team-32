@@ -5,18 +5,17 @@ from tira.rest_api_client import Client
 from tira.third_party_integrations import get_output_directory
 
 def preprocess_text(text):
-    # Preprocess the text: clean the text, remove stop words, tokenize the text, etc.
-    # Example of basic preprocessing
-    text = text.replace("\n", " ")
-    return text
+    # Basic preprocessing to clean the text data
+    return text.replace("\n", " ")
 
 def load_model():
-    # Load the pre-trained BART model and tokenizer
+    # Load the pre-trained BART model and tokenizer from Hugging Face
     tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
     model = BartForConditionalGeneration.from_pretrained('facebook/bart-large-cnn')
     return tokenizer, model
 
 def generate_summary(tokenizer, model, text, max_length=130, min_length=30, num_beams=4):
+    # Generate a summary for a given text using the BART model
     inputs = tokenizer([text], max_length=1024, return_tensors='pt', truncation=True)
     summary_ids = model.generate(
         inputs['input_ids'], 
@@ -30,26 +29,38 @@ def generate_summary(tokenizer, model, text, max_length=130, min_length=30, num_
 
 if __name__ == "__main__":
 
-    # Load the data
+    # Load the data from TIRA
     tira = Client()
     df = tira.pd.inputs(
         "nlpbuw-fsu-sose-24", "summarization-validation-20240530-training"
     ).set_index("id")
 
-    # Check if the 'story' column exists
-    if 'story' not in df.columns:
-        raise ValueError("The dataset does not contain the 'story' column.")
+    # Print the first few rows of the DataFrame to view the data
+    print("Loaded DataFrame:")
+    print(df.head())
+
+    # Print the content of the 'story' column for the first few rows
+    print("\nStory column of the loaded DataFrame:")
+    print(df["story"].head())
 
     # Preprocess the data
     df["story"] = df["story"].apply(preprocess_text)
 
-    # Load the model
+    # Load the pre-trained BART model
     tokenizer, model = load_model()
 
-    # Generate summaries
+    # Generate summaries for each story in the DataFrame
     df["summary"] = df["story"].apply(lambda x: generate_summary(tokenizer, model, x))
 
-    # Save the predictions
+    # Print the modified DataFrame to view the summaries
+    print("\nModified DataFrame with summaries:")
+    print(df.head())
+
+    # Print the content of the 'summary' column for the first few rows
+    print("\nSummary column of the modified DataFrame:")
+    print(df["summary"].head())
+
+    # Save the predictions to a JSONL file
     df = df.drop(columns=["story"]).reset_index()
     output_directory = get_output_directory(str(Path(__file__).parent))
     df.to_json(

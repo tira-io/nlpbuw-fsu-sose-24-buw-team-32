@@ -25,7 +25,7 @@ if __name__ == "__main__":
         df["summary"] = df["text"].str.split("\n").str[:2].str.join("\n")
         df = df.drop(columns=["text"]).reset_index()
 
-        # Save the predictions to JSONL file
+        # Save the preDdictions to JSONL file
         output_directory = get_output_directory(str(Path(__file__).parent))
         output_path = Path(output_directory) / "predictions.jsonl"
         df.to_json(output_path, orient="records", lines=True)

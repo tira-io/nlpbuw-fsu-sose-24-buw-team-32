@@ -36,6 +36,10 @@ if __name__ == "__main__":
         "nlpbuw-fsu-sose-24", "summarization-validation-20240530-training"
     ).set_index("id")
 
+    # Check if the 'story' column exists
+    if 'story' not in df.columns:
+        raise ValueError("The dataset does not contain the 'story' column.")
+
     # Preprocess the data
     df["story"] = df["story"].apply(preprocess_text)
 
